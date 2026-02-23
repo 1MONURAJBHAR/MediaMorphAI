@@ -12,14 +12,16 @@ datasource db {
   provider = "postgresql"
 }
 
-model video {
-  id              String @id @default(cuid())
+model Video {
+  id              String   @id @default(cuid())
+  userId          String
   title           String
   description     String?
-  publicId        String
-  originalSize    String
-  compressedSize  String
+  publicId        String   @unique
+  originalSize    Int
+  compressedSize  Int
   duration        Float
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
 }

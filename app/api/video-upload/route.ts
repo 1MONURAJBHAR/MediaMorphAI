@@ -1,4 +1,91 @@
-import { NextRequest, NextResponse } from "next/server";
+//Flow of video upload
+/*Frontend (Browser)
+ ├── gets signed upload params
+ ├── uploads video directly to Cloudinary
+ └── sends metadata to backend
+
+Backend (Next.js + Prisma)
+ ├── signs upload request
+ └── saves video metadata (public_id, duration, etc.)
+
+Cloudinary
+ ├── stores original video once
+ └── compresses dynamically at delivery */
+
+import { NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { prisma } from "@/lib/prisma";
+
+export const runtime = "nodejs";
+
+export async function POST(req: Request) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    //  Parse JSON body
+    const body = await req.json();
+
+    const {
+      title,
+      description,
+      publicId,
+      originalSize,
+      compressedSize,
+      duration,
+    } = body;
+
+    //  Strong validation
+    if (
+      !title ||
+      !publicId ||
+      typeof originalSize !== "number" ||
+      typeof compressedSize !== "number"
+    ) {
+      return NextResponse.json(
+        { error: "Invalid or missing required fields" },
+        { status: 400 },
+      );
+    }
+
+    //  Optional sanity check (compressed should be smaller)
+    if (compressedSize > originalSize) {
+      return NextResponse.json(
+        { error: "Compressed size cannot be larger than original size" },
+        { status: 400 },
+      );
+    }
+
+    //  Save metadata only (NO FILES)
+    const video = await prisma.video.create({
+      data: {
+        userId, // ownership
+        title: title.trim(),
+        description: description?.trim() || "",
+        publicId,
+        originalSize: originalSize,
+        compressedSize: compressedSize,
+        duration: duration ?? 0,
+      },
+    });
+
+    return NextResponse.json({ success: true, video }, { status: 201 });
+  } catch (error) {
+    console.error(" Video metadata save failed:", error);
+
+    return NextResponse.json(
+      { error: "Failed to save video metadata" },
+      { status: 500 },
+    );
+  }
+}
+
+
+
+/*import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
@@ -49,13 +136,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "File not found" }, { status: 400 });
     }
 
-    if (!file.type.startsWith("image/")) {
-      return NextResponse.json(
-        { error: "Only image files are allowed" },
-        { status: 400 },
-      );
-    }
-
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -90,7 +170,13 @@ export async function POST(request: NextRequest) {
           }
       })
 
-    return NextResponse.json(video);
+    return NextResponse.json(
+      {
+        success: true,
+        video,
+      },
+      { status: 200 },
+    );
     
   } catch (error) {
     console.error("Upload video failed:", error);
@@ -98,4 +184,4 @@ export async function POST(request: NextRequest) {
   } finally {
     await prisma.$disconnect()
   }
-}
+}*/

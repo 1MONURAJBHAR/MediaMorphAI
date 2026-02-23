@@ -40,10 +40,10 @@ const socialFormats = {
     height: 396,
     aspectRatio: "4:1",
   },
-  "LinkedIn Post (1.91:1)": {
+  "LinkedIn Post (2:1)": {
     width: 1200,
     height: 627,
-    aspectRatio: "1.91:1",
+    aspectRatio: "2:1",
   },
 } as const;
 
@@ -149,13 +149,9 @@ export default function SocialShare() {
 
 return (
   <div
-    className="
-    min-h-screen
-    bg-linear-to-br from-base-300 via-base-200 to-base-100
-    flex items-center justify-center px-4 py-12
-  "
+    className="w-full"
   >
-    <div className="w-full max-w-5xl">
+    <div className="w-full max-w-7xl">
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">

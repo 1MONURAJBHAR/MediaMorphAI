@@ -8,8 +8,9 @@ export async function GET(request: NextRequest) {
         const videos = await prisma.video.findMany({
             orderBy: { createdAt: "desc" }
         })
-        return NextResponse.json(videos)
+         return NextResponse.json(videos, { status: 200 });
     } catch (error) {
+        console.error("❌ Error fetching videos:", error);
         return NextResponse.json({ error: "Error fetching videos" }, { status: 500 });
     } finally {
         await prisma.$disconnect()

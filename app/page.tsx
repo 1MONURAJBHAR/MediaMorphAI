@@ -52,14 +52,14 @@ export default function Home() {
               <div className="absolute -inset-1 rounded-[2rem] bg-primary opacity-20 blur group-hover:opacity-30 transition" />
               <div className="mockup-window border border-base-300 bg-base-200 shadow-2xl">
                 <div className="flex justify-center bg-base-100">
-                  <Image
+                  {/*<Image
                     src="/dashboard-preview.png"
                     alt="MediaMorphAI dashboard preview"
                     width={600}
                     height={400}
                     className="w-full h-auto"
                     priority
-                  />
+                  />*/}
                 </div>
               </div>
             </div>

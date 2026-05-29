@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import {getCldImageUrl, getCldVideoUrl} from "next-cloudinary"
-import { Download, Clock, FileDown, FileUp } from "lucide-react"
-import dayjs from 'dayjs'
-import relativeTime from "dayjs/plugin/relativeTime"
-import { filesize } from 'filesize'
-import { Video } from "@prisma/client"
+"use client";
+import React, { useState, useEffect, useCallback } from "react";
+import { getCldImageUrl, getCldVideoUrl } from "next-cloudinary";
+import { Download, Clock, FileDown, FileUp } from "lucide-react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { filesize } from "filesize";
+import { Video } from "@prisma/client";
 
-dayjs.extend(relativeTime)
+dayjs.extend(relativeTime);
 
 interface VideoCardProps {
   video: Video;
   onDownload: (url: string, title: string) => void;
 }
-
 
 const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -68,11 +68,19 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
   const originalSize = video.originalSize;
   const compressedSize = video.compressedSize;
 
-  const compressionPercentage = Math.round(
-    (1 - compressedSize / originalSize) * 100,
-  );
+  // const compressionPercentage = Math.round(
+  //   (1 - compressedSize / originalSize) * 100,
+  // );
 
-  const compressionLabel = compressionPercentage <= 0 ? "Already optimized" : `${compressionPercentage}%`;
+  const compressionPercentage =
+    originalSize > 0
+      ? Math.round((1 - compressedSize / originalSize) * 100)
+      : 0;
+
+  const compressionLabel =
+    compressionPercentage <= 0
+      ? "Already optimized"
+      : `${compressionPercentage}%`;
 
   useEffect(() => {
     setPreviewError(false);
@@ -116,13 +124,13 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
         {/* Duration badge – fixed on thumbnail */}
         <div className="absolute bottom-2 right-2 rounded-md bg-black/70 px-2 py-1 text-xs text-white flex items-center gap-1">
           <Clock size={14} />
-          {formatDuration(video.duration)}
+          {formatDuration(video.duration ?? 0)}
         </div>
       </figure>
       <div className="card-body p-4">
         <h2 className="card-title text-lg font-bold">{video.title}</h2>
         <p className="text-sm text-base-content opacity-70 mb-4">
-          {video.description}
+          {video.description || "No description available"}
         </p>
         <p className="text-sm text-base-content opacity-70 mb-4">
           Uploaded {dayjs(video.createdAt).fromNow()}
@@ -162,6 +170,6 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onDownload }) => {
       </div>
     </div>
   );
-}
+};
 
-export default VideoCard
+export default VideoCard;
